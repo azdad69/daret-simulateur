@@ -1,2 +1,9 @@
-// Daret — simulateur. Ton code commence ici.
-// Le HTML (index.html) est déjà intégré : lis-le, repère les id et les data-*, puis fais-le vivre.
+const form = document.querySelector("#daret-form")
+const nomCercle =document.querySelector("#nom-cercle")
+const nomCercleErreur =document.querySelector("#nom-cercle-erreur")
+const cotisation =document.querySelector("#cotisation")
+const cotisationErreur =document.querySelector("#cotisation-erreur")
+const periodicite =document.querySelector("#periodicite")
+const periodiciteErreur =document.querySelector("#periodicite-erreur")
+const dateDebut =document.querySelector("#date-debut")
+const dateDebutErreur =document.querySelector("#date-debut-erreur")
