@@ -7,6 +7,10 @@ const periodicite =document.querySelector("#periodicite");
 const periodiciteErreur =document.querySelector("#periodicite-erreur");
 const dateDebut =document.querySelector("#date-debut");
 const dateDebutErreur =document.querySelector("#date-debut-erreur");
+const participantsListe =document.querySelector("#participants-liste");
+const ajouterParticipant =document.querySelector("#ajouter-participant");
+const participantsCompteur =document.querySelector("#participants-compteur");
+const participantsErreur =document.querySelector("#participants-erreur");
 
 function afficherErreur(champ, elementErreur, message){
 elementErreur.textContent = message ;
@@ -62,6 +66,77 @@ function validerDate(value){
     }
     return '';
 }
+function creerParticipant(){
+    if (participantsListe.children.length >= 20){
+    return;
+}
+const li =document.createElement("li");
+const input =document.createElement("input");
+input.type = "text"
+input.placeholder = "prenom du participant"
+input.className = "border rounded p-2"
+li.appendChild(input)
+const boutonSupprimer = document.createElement("button");
+boutonSupprimer.textContent = "Supprimer"
+boutonSupprimer.style.backgroundColor = "#dc2626";
+boutonSupprimer.style.color = "#ffffff";
+boutonSupprimer.style.padding = "8px 12px";
+boutonSupprimer.style.borderRadius = "6px";
+boutonSupprimer.style.border = "none";
+boutonSupprimer.style.cursor = "pointer";
+boutonSupprimer.style.marginLeft = "20px"
+li.appendChild(boutonSupprimer)
+boutonSupprimer.addEventListener("click", function(){
+    if (participantsListe.children.length <= 3){
+        participantsErreur.textContent = "Il faut garder au moins 3 participants.";
+        participantsErreur.classList.remove("hidden")
+        return;
+    }
+    li.remove();
+    actualiserCompteur();
+    participantsErreur.classList.add("hidden");
+});
+participantsListe.appendChild(li)
+actualiserCompteur();
+if (participantsListe.children.length >=3){
+    participantsErreur.classList.add("hidden");
+}
+input.addEventListener("input", function() {
+    const prenom = input.value.trim();
+
+    if (prenom.length === 0) {
+        participantsErreur.textContent ="Le prénom du participant est obligatoire";
+        participantsErreur.classList.remove("hidden");
+    } else if (prenom.length < 3 || prenom.length > 30) {
+        participantsErreur.textContent ="Le prénom doit contenir entre 3 et 30 caractères";
+        participantsErreur.classList.remove("hidden");
+    } else {
+        participantsErreur.classList.add("hidden");
+    }
+});
+
+    const prenom = input.value.trim()
+    if (prenom.length ===0){
+participantsErreur.textContent = "le prenom du participant est obligatoire"
+participantsErreur.classList.remove("hidden")
+    }else if (prenom.length <= 2 ||prenom.length >=30){
+        participantsErreur.textContent="Le prénom doit contenir entre 3 et 30 caractères"
+        participantsErreur.classList.remove("hidden")
+    }else{
+        participantsErreur.classList.add("hidden")
+    }
+}
+function actualiserCompteur(){
+    const nomber = participantsListe.children.length;
+       participantsCompteur.textContent = `${nomber} participant`;
+}
+creerParticipant();
+creerParticipant();
+creerParticipant();
+
+ajouterParticipant.addEventListener("click", function(){
+    creerParticipant();
+})
 form.addEventListener("submit", function(event){
     event.preventDefault();
     const erreurNom = validerNom(nomCercle.value)
@@ -72,7 +147,30 @@ form.addEventListener("submit", function(event){
     afficherErreur(cotisation, cotisationErreur, erreurCotisation);
     afficherErreur(periodicite, periodiciteErreur, erreurPeriodicite);
     afficherErreur(dateDebut, dateDebutErreur, erreurDate);
+    const inputsParticipants = participantsListe.querySelectorAll("input");
+    let nomsVus = []
+    for (const input of inputsParticipants) {
+    const prenom = input.value.trim().toLowerCase();
+    if (nomsVus.includes(prenom)){
+        participantsErreur.textContent = "les prenoms ne doivent pas etre double."
+        participantsErreur.classList.remove("hidden")
+        return
+    }
+    nomsVus.push(prenom)
+    participantsErreur.classList.add("hidden")
+}
+    for (const input of inputsParticipants) {
+    const prenom = input.value.trim();
+    if (prenom.length === 0) {
+            participantsErreur.textContent ="Le prénom du participant est obligatoire";
+            participantsErreur.classList.remove("hidden");
+            return;
+    }if (prenom.length < 3 || prenom.length > 30) {
+            participantsErreur.textContent ="Le prénom doit contenir entre 3 et 30 caractères";
+            participantsErreur.classList.remove("hidden");
+            return;
+}}
+    participantsErreur.classList.add("hidden");
     if(erreurDate === '' && erreurNom === '' && erreurCotisation === '' && erreurPeriodicite === ''){
-
     }
 })
