@@ -17,6 +17,7 @@ const resumeNbTours = document.querySelector("#resume-nb-tours");
 const resumeDates = document.querySelector("#resume-dates");
 const contenuResultat = document.querySelector("#contenu-resultat");
 const etatVide = document.querySelector("#etat-vide");
+const calendrierCorps = document.querySelector("#calendrier-corps");
 
 function afficherErreur(champ, elementErreur, message) {
   elementErreur.textContent = message;
@@ -157,6 +158,7 @@ function calculerTotalVerse(cotisation, nombreTours) {
 function calculerNombreTours(nombreParticipants) {
   return nombreParticipants;
 }
+
 function afficherResume() {
     const montantCotisation = Number(cotisation.value);
     const nombreParticipants = participantsListe.children.length;
@@ -187,7 +189,25 @@ function afficherResume() {
         year: "numeric"
     });
 
-    // Afficher la date de début et la date de fin
+    // Récupérer les noms des participants
+    const nomsParticipants = Array.from(
+        participantsListe.querySelectorAll("input")
+    ).map(input => input.value.trim());
+
+    // Vider l'ancien calendrier
+    calendrierCorps.replaceChildren();
+
+    // Créer une ligne pour chaque tour
+    for (let i = 0; i < nombreTours; i++) {
+        creerLigneCalendrier(
+            i + 1,
+            formatDate.format(dates[i]),
+            nomsParticipants[i],
+            montantTotal
+        );
+    }
+
+    // Afficher les dates de début et de fin
     resumeDates.textContent =
         `${formatDate.format(dates[0])} — ${formatDate.format(dates[dates.length - 1])}`;
 
@@ -199,24 +219,72 @@ function afficherResume() {
     contenuResultat.classList.remove("hidden");
     etatVide.classList.add("hidden");
 }
+
+
 function calculerDates(dateDebut, periodicite, nombreTours) {
     const dates = [];
-    const date = new Date(`${dateDebut}T12:00:00`);
+    const dateInitiale = new Date(`${dateDebut}T12:00:00`);
+    const jourInitial = dateInitiale.getDate();
+
     for (let i = 0; i < nombreTours; i++) {
-        dates.push(new Date(date));
-        if (periodicite === "hebdomadaire") {
-            date.setDate(date.getDate() + 7);
-        } else if (periodicite === "quinzaine") {
-            date.setDate(date.getDate() + 15);
-        } else if (periodicite === "mensuelle") {
-            const jour = date.getDate();
-            date.setDate(1);
-            date.setMonth(date.getMonth() + 1);
-            const dernierJour = new Date(date.getFullYear(),date.getMonth() + 1,0).getDate();
-            date.setDate(Math.min(jour, dernierJour));
+        let date;
+
+        if (periodicite === "mensuelle") {
+            date = new Date(
+                dateInitiale.getFullYear(),
+                dateInitiale.getMonth() + i,
+                1,
+                12
+            );
+
+            const dernierJour = new Date(
+                date.getFullYear(),
+                date.getMonth() + 1,
+                0
+            ).getDate();
+
+            date.setDate(Math.min(jourInitial, dernierJour));
+        } else {
+            date = new Date(dateInitiale);
+
+            if (periodicite === "hebdomadaire") {
+                date.setDate(date.getDate() + i * 7);
+            } else if (periodicite === "quinzaine") {
+                date.setDate(date.getDate() + i * 15);
+            }
         }
+
+        dates.push(date);
     }
+
     return dates;
+}
+
+function creerLigneCalendrier(numero, date, beneficiaire, montant) {
+    const ligne = document.createElement("tr");
+
+    const celluleNumero = document.createElement("td");
+    celluleNumero.textContent = numero;
+
+    const celluleDate = document.createElement("td");
+    celluleDate.textContent = date;
+
+    const celluleBeneficiaire = document.createElement("td");
+    celluleBeneficiaire.textContent = beneficiaire;
+
+    const celluleMontant = document.createElement("td");
+    celluleMontant.textContent = `${montant} MAD`;
+
+    ligne.appendChild(celluleNumero);
+    ligne.appendChild(celluleDate);
+    ligne.appendChild(celluleBeneficiaire);
+    ligne.appendChild(celluleMontant);
+    const celluleStatut = document.createElement("td");
+celluleStatut.textContent = "En attente";
+ligne.appendChild(celluleStatut);
+const celluleAction = document.createElement("td");
+ligne.appendChild(celluleAction);
+    calendrierCorps.appendChild(ligne);
 }
 form.addEventListener("submit", function (event) {
   event.preventDefault();
