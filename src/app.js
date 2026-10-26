@@ -18,7 +18,26 @@ const resumeDates = document.querySelector("#resume-dates");
 const contenuResultat = document.querySelector("#contenu-resultat");
 const etatVide = document.querySelector("#etat-vide");
 const calendrierCorps = document.querySelector("#calendrier-corps");
+const calendrier = document.querySelector("#calendrier");
+const tirerOrdre = document.querySelector("#tirage-au-sort");
+const conteneurBoutons = document.createElement("div");
+const ordreSaisie = document.querySelector("#ordre-saisie");
+let ordreOriginal = [];
+let ordreActuel = [];
 
+tirerOrdre.textContent = "Tirer l’ordre au sort";
+tirerOrdre.type = "button";
+
+ordreSaisie.textContent = "Ordre de saisie";
+ordreSaisie.type = "button";
+
+conteneurBoutons.appendChild(tirerOrdre);
+conteneurBoutons.appendChild(ordreSaisie);
+
+calendrier.parentElement.insertBefore(
+    conteneurBoutons,
+    calendrier
+);
 function afficherErreur(champ, elementErreur, message) {
   elementErreur.textContent = message;
   elementErreur.classList.toggle("hidden", message === "");
@@ -188,12 +207,12 @@ function afficherResume() {
         month: "long",
         year: "numeric"
     });
-
-    // Récupérer les noms des participants
     const nomsParticipants = Array.from(
-        participantsListe.querySelectorAll("input")
-    ).map(input => input.value.trim());
+    participantsListe.querySelectorAll("input")
+).map(input => input.value.trim());
 
+ordreOriginal = [...nomsParticipants];
+ordreActuel = [...nomsParticipants];
     // Vider l'ancien calendrier
     calendrierCorps.replaceChildren();
 
@@ -286,6 +305,62 @@ const celluleAction = document.createElement("td");
 ligne.appendChild(celluleAction);
     calendrierCorps.appendChild(ligne);
 }
+
+
+
+function melangerOrdre(tableau) {
+    const resultat = [...tableau];
+
+    for (let i = resultat.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [resultat[i], resultat[j]] = [resultat[j], resultat[i]];
+    }
+
+    return resultat;
+}
+function afficherCalendrierAvecOrdre(noms) {
+    const montantTotal = Number(cotisation.value) * noms.length;
+
+    const dates = calculerDates(
+        dateDebut.value,
+        periodicite.value,
+        noms.length
+    );
+
+    const formatDate = new Intl.DateTimeFormat("fr-FR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+    calendrierCorps.replaceChildren();
+
+    for (let i = 0; i < noms.length; i++) {
+        creerLigneCalendrier(
+            i + 1,
+            formatDate.format(dates[i]),
+            noms[i],
+            montantTotal
+        );
+    }
+}
+tirerOrdre.addEventListener("click", function () {
+  console.log("le bouton fonctionne");
+  
+    if (ordreOriginal.length === 0) {
+        ordreOriginal = Array.from(
+            participantsListe.querySelectorAll("input")
+        ).map(input => input.value.trim());
+    }
+
+    ordreActuel = melangerOrdre(ordreOriginal);
+    afficherCalendrierAvecOrdre(ordreActuel);
+});
+
+ordreSaisie.addEventListener("click", function () {
+    afficherCalendrierAvecOrdre(ordreOriginal);
+});
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   const erreurNom = validerNom(nomCercle.value);
