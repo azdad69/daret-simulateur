@@ -30,6 +30,7 @@ const detailBeneficiaire = document.querySelector("#detail-beneficiaire");
 const detailMontant = document.querySelector("#detail-montant");
 const detailContributeurs = document.querySelector("#detail-contributeurs");
 const detailFermer = document.querySelector("#detail-fermer");
+const reinitialiser = document.querySelector("#reinitialiser");
 let ordreOriginal = [];
 let ordreActuel = [];
 let elementOuvreur = null;
@@ -466,6 +467,14 @@ detailFermer.addEventListener("click", function () {
 });
 detailTour.addEventListener("close", function () {
     elementOuvreur?.focus();
+});
+reinitialiser.addEventListener("click", function () {
+    form.reset();
+
+    calendrierCorps.replaceChildren();
+
+    contenuResultat.classList.add("hidden");
+    etatVide.classList.remove("hidden");
 });
 form.addEventListener("submit", function (event) {
   event.preventDefault();
