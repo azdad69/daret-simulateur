@@ -22,6 +22,7 @@ const calendrier = document.querySelector("#calendrier");
 const tirerOrdre = document.querySelector("#tirage-au-sort");
 const conteneurBoutons = document.createElement("div");
 const ordreSaisie = document.querySelector("#ordre-saisie");
+const compteurTours = document.querySelector("#compteur-tours");
 let ordreOriginal = [];
 let ordreActuel = [];
 
@@ -279,6 +280,7 @@ function calculerDates(dateDebut, periodicite, nombreTours) {
     return dates;
 }
 
+
 function creerLigneCalendrier(numero, date, beneficiaire, montant) {
     const ligne = document.createElement("tr");
 
@@ -294,20 +296,34 @@ function creerLigneCalendrier(numero, date, beneficiaire, montant) {
     const celluleMontant = document.createElement("td");
     celluleMontant.textContent = `${montant} MAD`;
 
+    const celluleStatut = document.createElement("td");
+    celluleStatut.textContent = "À venir";
+    celluleStatut.classList.add("statut-tour");
+
+    const celluleAction = document.createElement("td");
+
+    const boutonStatut = document.createElement("button");
+    boutonStatut.type = "button";
+    boutonStatut.textContent = "Marquer comme terminé";
+    boutonStatut.classList.add(
+        "bouton-statut",
+        "rounded",
+        "border",
+        "px-3",
+        "py-1"
+    );
+
+    celluleAction.appendChild(boutonStatut);
+
     ligne.appendChild(celluleNumero);
     ligne.appendChild(celluleDate);
     ligne.appendChild(celluleBeneficiaire);
     ligne.appendChild(celluleMontant);
-    const celluleStatut = document.createElement("td");
-celluleStatut.textContent = "En attente";
-ligne.appendChild(celluleStatut);
-const celluleAction = document.createElement("td");
-ligne.appendChild(celluleAction);
+    ligne.appendChild(celluleStatut);
+    ligne.appendChild(celluleAction);
+
     calendrierCorps.appendChild(ligne);
 }
-
-
-
 function melangerOrdre(tableau) {
     const resultat = [...tableau];
 
@@ -361,6 +377,56 @@ tirerOrdre.addEventListener("click", function () {
 ordreSaisie.addEventListener("click", function () {
     afficherCalendrierAvecOrdre(ordreOriginal);
 });
+
+calendrier.addEventListener("click", function (event) {
+    const bouton = event.target.closest(".bouton-statut");
+
+    if (!bouton) {
+        return;
+    }
+
+    const ligne = bouton.closest("tr");
+    const celluleStatut = ligne.querySelector(".statut-tour");
+
+    if (celluleStatut.textContent === "À venir") {
+        celluleStatut.textContent = "Terminé";
+        bouton.textContent = "Annuler";
+    } else {
+        celluleStatut.textContent = "À venir";
+        bouton.textContent = "Marquer comme terminé";
+    }
+    actualiserCompteurTours();
+    actualiserProchainTour();
+});
+
+function actualiserCompteurTours() {
+    const statuts = calendrierCorps.querySelectorAll(".statut-tour");
+
+    const nombreTermines = Array.from(statuts).filter(function (statut) {
+        return statut.textContent === "Terminé";
+    }).length;
+
+    compteurTours.textContent =
+        `${nombreTermines} tours terminés sur ${statuts.length}`;
+}
+
+function actualiserProchainTour() {
+    const lignes = calendrierCorps.querySelectorAll("tr");
+
+    lignes.forEach(function (ligne) {
+        ligne.classList.remove("bg-yellow-200", "font-semibold");
+    });
+
+    const prochaineLigne = Array.from(lignes).find(function (ligne) {
+        const statut = ligne.querySelector(".statut-tour");
+        return statut.textContent === "À venir";
+    });
+
+    if (prochaineLigne) {
+        prochaineLigne.classList.add("bg-yellow-200", "font-semibold");
+    }
+}
+
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   const erreurNom = validerNom(nomCercle.value);
@@ -407,6 +473,8 @@ form.addEventListener("submit", function (event) {
     erreurPeriodicite === ""
   ) {
     afficherResume();
+    actualiserCompteurTours();
+    actualiserProchainTour();
   }
 });
 
