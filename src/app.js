@@ -23,9 +23,16 @@ const tirerOrdre = document.querySelector("#tirage-au-sort");
 const conteneurBoutons = document.createElement("div");
 const ordreSaisie = document.querySelector("#ordre-saisie");
 const compteurTours = document.querySelector("#compteur-tours");
+const detailTour = document.querySelector("#detail-tour");
+const detailTitre = document.querySelector("#detail-titre");
+const detailDate = document.querySelector("#detail-date");
+const detailBeneficiaire = document.querySelector("#detail-beneficiaire");
+const detailMontant = document.querySelector("#detail-montant");
+const detailContributeurs = document.querySelector("#detail-contributeurs");
+const detailFermer = document.querySelector("#detail-fermer");
 let ordreOriginal = [];
 let ordreActuel = [];
-
+let elementOuvreur = null;
 tirerOrdre.textContent = "Tirer l’ordre au sort";
 tirerOrdre.type = "button";
 
@@ -292,7 +299,8 @@ function creerLigneCalendrier(numero, date, beneficiaire, montant) {
 
     const celluleBeneficiaire = document.createElement("td");
     celluleBeneficiaire.textContent = beneficiaire;
-
+    celluleBeneficiaire.dataset.action = "ouvrir-detail";
+    celluleBeneficiaire.classList.add("cursor-pointer");
     const celluleMontant = document.createElement("td");
     celluleMontant.textContent = `${montant} MAD`;
 
@@ -380,7 +388,33 @@ ordreSaisie.addEventListener("click", function () {
 
 calendrier.addEventListener("click", function (event) {
     const bouton = event.target.closest(".bouton-statut");
+    const beneficiaireClique = event.target.closest(
+    '[data-action="ouvrir-detail"]'
+);
 
+if (beneficiaireClique) {
+    const ligne = beneficiaireClique.closest("tr");
+    const cellules = ligne.querySelectorAll("td");
+
+    detailTitre.textContent = `Détail du tour ${cellules[0].textContent}`;
+    detailDate.textContent = cellules[1].textContent;
+    detailBeneficiaire.textContent = cellules[2].textContent;
+    detailMontant.textContent = cellules[3].textContent;
+    detailContributeurs.replaceChildren();
+
+ordreActuel
+    .filter(function (nom) {
+        return nom !== beneficiaireClique.textContent;
+    })
+    .forEach(function (nom) {
+        const element = document.createElement("li");
+        element.textContent = nom;
+        detailContributeurs.appendChild(element);
+    });
+    elementOuvreur = beneficiaireClique;
+    detailTour.showModal();
+    return;
+}
     if (!bouton) {
         return;
     }
@@ -426,7 +460,13 @@ function actualiserProchainTour() {
         prochaineLigne.classList.add("bg-yellow-200", "font-semibold");
     }
 }
-
+detailFermer.addEventListener("click", function () {
+    detailTour.close();
+    elementOuvreur?.focus();
+});
+detailTour.addEventListener("close", function () {
+    elementOuvreur?.focus();
+});
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   const erreurNom = validerNom(nomCercle.value);
