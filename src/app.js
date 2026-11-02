@@ -60,7 +60,7 @@ function validerNom(value) {
   if (nom.length < 3 || nom.length > 40) {
     return "le nom doit etre entre 3 et 40 caractire";
   }
-  const regex = /^[\p{L}\p{M}0-9 -]+$/u;
+  const regex = /^[a-zA-Z]+$/;
   if (!regex.test(nom)) {
     return "Utilisez uniquement des lettres, chiffres, espaces, tirets";
   }
@@ -123,7 +123,7 @@ function creerParticipant() {
   boutonSupprimer.style.marginLeft = "20px";
   li.appendChild(boutonSupprimer);
   boutonSupprimer.addEventListener("click", function () {
-    if (participantsListe.children.length <= 3) {
+    if (participantsListe.children.length <= 2) {
       participantsErreur.textContent =
         "Il faut garder au moins 3 participants.";
       participantsErreur.classList.remove("hidden");
@@ -153,24 +153,11 @@ function creerParticipant() {
       participantsErreur.classList.add("hidden");
     }
   });
-
-  const prenom = input.value.trim();
-  if (prenom.length === 0) {
-    participantsErreur.textContent = "le prenom du participant est obligatoire";
-    participantsErreur.classList.remove("hidden");
-  } else if (prenom.length <= 2 || prenom.length >= 30) {
-    participantsErreur.textContent =
-      "Le prénom doit contenir entre 3 et 30 caractères";
-    participantsErreur.classList.remove("hidden");
-  } else {
-    participantsErreur.classList.add("hidden");
-  }
 }
 function actualiserCompteur() {
   const nomber = participantsListe.children.length;
   participantsCompteur.textContent = `${nomber} participant`;
 }
-creerParticipant();
 creerParticipant();
 creerParticipant();
 
@@ -526,4 +513,3 @@ form.addEventListener("submit", function (event) {
     actualiserProchainTour();
   }
 });
-
